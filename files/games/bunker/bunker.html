@@ -1,0 +1,2397 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0, minimum-scale=0.5">
+<title>БУНКЕР · оффлайн-версия</title>
+<style>
+  :root{
+    --bg: #0b0d0f;
+    --panel: #15181b;
+    --panel-2: #1c2023;
+    --panel-3: #22262a;
+    --border: #2a2f33;
+    --border-soft: #23272b;
+    --text: #edf0ee;
+    --text-dim: #9aa2a0;
+    --text-faint: #676f6d;
+    --accent: #e3b45e;
+    --accent-soft: rgba(227,180,94,0.14);
+    --accent-2: #5fd6c4;
+    --accent-2-soft: rgba(95,214,196,0.14);
+    --danger: #e0736a;
+    --danger-soft: rgba(224,115,106,0.14);
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --shadow: 0 12px 32px rgba(0,0,0,0.45);
+    --drawer-w: 340px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body { height:100%; }
+
+  body {
+    background:
+      radial-gradient(circle at 15% 0%, rgba(227,180,94,0.05), transparent 45%),
+      radial-gradient(circle at 85% 100%, rgba(95,214,196,0.05), transparent 45%),
+      var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+    padding: 32px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 640px;
+    width:100%;
+    align-self:flex-start;
+  }
+
+  h1 {
+    text-align:center;
+    font-size: 1.5rem;
+    font-weight:700;
+    letter-spacing: 0.5px;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  h1 .accent { color: var(--accent); }
+
+  h2 {
+    font-size: 1.15rem;
+    font-weight:700;
+    letter-spacing: 0.2px;
+    margin-bottom: 16px;
+    color: var(--text);
+    text-align:center;
+  }
+
+  h3.section-title {
+    font-size: 0.78rem;
+    font-weight:700;
+    letter-spacing: 1.5px;
+    text-transform:uppercase;
+    color: var(--text-faint);
+    margin: 28px 0 12px 4px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  label {
+    display:block;
+    margin: 14px 0 6px;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    letter-spacing: 0.6px;
+    font-weight:600;
+    text-transform:uppercase;
+  }
+  label:first-of-type { margin-top:0; }
+
+  input, select, textarea {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 11px 13px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.95rem;
+    width:100%;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-faint); }
+  input:focus, select:focus, textarea:focus {
+    outline:none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  select {
+    appearance: none;
+    -webkit-appearance:none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239aa2a0' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position: right 14px center;
+    padding-right: 34px;
+  }
+
+  textarea { resize:vertical; min-height:100px; line-height:1.5; }
+
+  .btn {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    background: var(--panel-3);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 11px 16px;
+    border-radius: var(--radius-sm);
+    font-family:inherit;
+    font-size: 0.88rem;
+    font-weight:600;
+    letter-spacing:0.3px;
+    cursor:pointer;
+    transition: all .15s ease;
+    width:100%;
+  }
+  .btn:hover { border-color: var(--text-faint); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1408;
+  }
+  .btn-primary:hover { background:#ecc276; border-color:#ecc276; }
+
+  .btn-ghost {
+    background: transparent;
+  }
+
+  .btn-danger {
+    background: var(--danger-soft);
+    border-color: rgba(224,115,106,0.35);
+    color: #f0a9a2;
+  }
+  .btn-danger:hover { background: rgba(224,115,106,0.22); border-color: var(--danger); }
+
+  .btn-auto { width:auto; }
+  .btn-sm { padding: 7px 12px; font-size: 0.78rem; }
+
+  .row { display:flex; gap:10px; margin-top:14px; }
+  .row > * { flex:1 1 auto; }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border-soft);
+    margin: 18px 0;
+  }
+
+  .pill {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+
+  .top-bar {
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom: 18px;
+  }
+
+  /* ---------- Плиточная сетка карточек ---------- */
+  .cards-grid {
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 46px;
+    grid-auto-flow: dense;
+    gap: 10px;
+  }
+  @media (max-width: 520px) {
+    .cards-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 50px; }
+  }
+
+  .card {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 13px;
+    cursor:pointer;
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap: 3px;
+    overflow:hidden;
+    position:relative;
+    grid-row: span 2;
+  }
+  .card:hover { border-color: var(--text-faint); transform: translateY(-1px); }
+
+  .card.size-wide   { grid-column: span 2; }
+  .card.size-tall   { grid-row: span 4; }
+  .card.size-banner {
+    grid-column: 1 / -1;
+    grid-row: span 3;
+    padding: 14px 18px;
+  }
+  .card.size-banner-thin {
+    grid-column: 1 / -1;
+    grid-row: span 2;
+    padding: 12px 16px;
+  }
+
+  .card.crossover {
+    background: rgba(201,166,240,0.09);
+    border-color: rgba(201,166,240,0.32);
+  }
+  .card.crossover:hover { border-color: #c9a6f0; }
+  .card.crossover .value { color: #d7bdf5; }
+
+  .card.locked {
+    cursor:not-allowed;
+    background: repeating-linear-gradient(135deg, var(--panel-2), var(--panel-2) 8px, #191c1f 8px, #191c1f 16px);
+    border-color: var(--border-soft);
+  }
+  .card.locked:hover { transform:none; border-color: var(--border-soft); }
+
+  .card.ability-active {
+    background: var(--accent-2-soft);
+    border-color: var(--accent-2);
+    box-shadow: 0 0 0 1px var(--accent-2) inset;
+  }
+  .card.ability-used {
+    opacity:0.55;
+    cursor:not-allowed;
+    background: var(--panel-2);
+  }
+  .card.ability-used:hover { transform:none; }
+
+  .card h4 {
+    font-size: 0.68rem;
+    font-weight:700;
+    letter-spacing: 1px;
+    text-transform:uppercase;
+    color: var(--text-faint);
+  }
+  .card .value {
+    font-size: 1.02rem;
+    font-weight:700;
+    color: var(--text);
+    line-height:1.25;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  .card.size-banner .value, .card.size-tall .value { font-size: 1.1rem; }
+
+  .small-desc {
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    line-height:1.35;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Круглая кнопка-подсказка (например, для карточки "Пол") */
+  .info-btn {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(154,162,160,0.35);
+    background: rgba(154,162,160,0.22);
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    font-weight:700;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    margin-top: 4px;
+    align-self:flex-start;
+    padding:0;
+    transition: background .15s ease, color .15s ease, transform .15s ease, border-color .15s ease;
+  }
+  .info-btn:hover {
+    background: rgba(154,162,160,0.38);
+    border-color: rgba(154,162,160,0.55);
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+  .info-btn:active { transform: translateY(0); }
+
+  .ability-btn {
+    margin-top: 6px;
+    width:auto;
+    align-self:flex-start;
+  }
+
+  .timer-badge {
+    position:absolute;
+    top:10px;
+    right:10px;
+    font-size: 0.68rem;
+    background: var(--panel-3);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: var(--text-dim);
+    font-weight:600;
+  }
+
+  /* ---------- Заметки об участниках ---------- */
+  .note-block {
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .note-line {
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size: 0.87rem;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border-soft);
+    gap: 12px;
+  }
+  .note-line:last-child { border-bottom:none; }
+  .note-line span:first-child {
+    color: var(--text-faint);
+    flex-shrink:0;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  .note-line span:last-child {
+    text-align:right;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    color: var(--text);
+  }
+
+  .participant-header {
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    flex-wrap:wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .participant-name { font-weight:700; color: var(--text); font-size: 0.95rem; flex:1 1 auto; }
+  .remove-btn {
+    width:auto;
+    flex-shrink:0;
+    padding: 4px 9px;
+    font-size: 0.75rem;
+    background: var(--danger-soft);
+    border-color: rgba(224,115,106,0.3);
+    color: #f0a9a2;
+  }
+  .remove-btn:hover { background: rgba(224,115,106,0.22); }
+
+  /* ---------- Значок доверия ---------- */
+  .trust-badge {
+    flex-shrink:0;
+    border: 1px solid transparent;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight:700;
+    letter-spacing:0.3px;
+    cursor:pointer;
+    font-family:inherit;
+    transition: all .15s ease;
+    white-space:nowrap;
+  }
+  .trust-badge:hover { transform: translateY(-1px); }
+  .trust-neutral    { background: rgba(154,162,160,0.14); color: var(--text-dim);  border-color: rgba(154,162,160,0.28); }
+  .trust-worthy     { background: rgba(95,214,196,0.16);  color: #7fd6c8;          border-color: rgba(95,214,196,0.32); }
+  .trust-suspicious { background: rgba(227,180,94,0.16);  color: #e3b45e;          border-color: rgba(227,180,94,0.32); }
+  .trust-ally       { background: rgba(120,200,140,0.16); color: #8fd6a0;          border-color: rgba(120,200,140,0.32); }
+  .trust-rival      { background: rgba(224,115,106,0.16); color: #f0a9a2;          border-color: rgba(224,115,106,0.32); }
+
+  .ability-status {
+    margin-top: 10px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight:600;
+  }
+  .status-used { background: var(--panel-3); color: var(--text-faint); }
+  .status-active { background: var(--accent-2-soft); color: var(--accent-2); }
+  .status-idle { background: var(--accent-soft); color: var(--accent); }
+
+  .hidden { display:none !important; }
+
+  .admin-code-area { display:flex; gap:8px; align-items:center; margin-top:14px; }
+
+  .error-text { color: var(--danger); margin-top:8px; font-size:0.8rem; min-height: 1em; }
+
+  /* ---------- Выдвижная панель заметок ---------- */
+  .notes-tab {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translate(0, -50%);
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: 6px;
+    width: 40px;
+    padding: 16px 0;
+    background: var(--panel-3);
+    border: 1px solid var(--border);
+    border-left:none;
+    border-radius: 0 14px 14px 0;
+    color: var(--text-dim);
+    cursor:pointer;
+    z-index: 1001;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.35);
+    transition: left .35s cubic-bezier(.4,0,.2,1), background .15s ease, color .15s ease;
+  }
+  body.in-game .notes-tab { display:flex; }
+  .notes-tab:hover { background: var(--panel-2); color: var(--text); }
+  .notes-tab.open { left: var(--drawer-w); border-radius: 14px 0 0 14px; border-left:1px solid var(--border); border-right:none; }
+  .notes-tab-icon { font-size: 1.1rem; }
+  .notes-tab-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.72rem;
+    font-weight:700;
+    letter-spacing: 1.5px;
+    text-transform:uppercase;
+  }
+
+  .notes-overlay {
+    position:fixed;
+    inset:0;
+    background: rgba(0,0,0,0.5);
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .3s ease;
+    z-index: 999;
+  }
+  .notes-overlay.open { opacity:1; pointer-events:auto; }
+
+  .notes-drawer {
+    position:fixed;
+    top:0;
+    left: calc(var(--drawer-w) * -1);
+    width: var(--drawer-w);
+    max-width: 88vw;
+    height:100vh;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    transition: left .35s cubic-bezier(.4,0,.2,1);
+  }
+  .notes-drawer.open { left:0; }
+
+  .notes-drawer-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom: 14px;
+  }
+  .notes-drawer-header h3 {
+    font-size: 0.95rem;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  .notes-close {
+    width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    cursor:pointer;
+    font-size: 0.9rem;
+    flex-shrink:0;
+  }
+  .notes-close:hover { color: var(--text); border-color: var(--text-faint); }
+
+  .notes-chips {
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .notes-chips::-webkit-scrollbar { display:none; }
+  .notes-chip {
+    flex:0 0 auto;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+    white-space:nowrap;
+    transition: all .15s ease;
+  }
+  .notes-chip:hover { border-color: var(--text-faint); color: var(--text); }
+  .notes-chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  .notes-textarea {
+    flex:1;
+    width:100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 13px;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.92rem;
+    resize:none;
+    line-height:1.55;
+  }
+  .notes-textarea:focus { outline:none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  .notes-actions { display:flex; gap:8px; margin-top:12px; }
+  .notes-actions .btn { width:auto; flex:1; }
+
+  .save-indicator {
+    color: var(--accent-2);
+    font-size: 0.76rem;
+    margin-top: 8px;
+    text-align:center;
+    min-height: 1em;
+  }
+
+  .notes-drawer::-webkit-scrollbar { width:8px; }
+  .notes-drawer::-webkit-scrollbar-thumb { background: var(--border); border-radius:8px; }
+
+  /* ---------- Окно с подробностями о персонаже ---------- */
+  .modal-overlay {
+    position:fixed;
+    inset:0;
+    background: rgba(0,0,0,0.55);
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .25s ease;
+    z-index: 1002;
+  }
+  .modal-overlay.open { opacity:1; pointer-events:auto; }
+
+  .character-modal {
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -46%) scale(0.96);
+    width: min(420px, 88vw);
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 22px;
+    z-index: 1003;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .character-modal.open {
+    opacity:1;
+    pointer-events:auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .character-modal-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom: 12px;
+  }
+  .character-modal-header h3 {
+    font-size: 1.05rem;
+    font-weight:700;
+    color: #d7bdf5;
+  }
+  .character-modal-universe {
+    font-size: 0.72rem;
+    text-transform:uppercase;
+    letter-spacing: 1px;
+    font-weight:700;
+    color: #c9a6f0;
+    margin-bottom: 10px;
+  }
+  .character-modal-trait {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    line-height:1.45;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .character-modal-qualities-label {
+    font-size: 0.7rem;
+    text-transform:uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-faint);
+    font-weight:700;
+    margin-bottom: 6px;
+  }
+  .character-modal-qualities {
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height:1.55;
+  }
+  .character-modal-fame-label {
+    font-size: 0.7rem;
+    text-transform:uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-faint);
+    font-weight:700;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-soft);
+    margin-bottom: 6px;
+  }
+  .character-modal-fame {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height:1.6;
+  }
+
+  /* ---------- Окно-пояснение (например, для гендера) ---------- */
+  .info-modal {
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -46%) scale(0.96);
+    width: min(380px, 88vw);
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 22px;
+    z-index: 1003;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .info-modal.open {
+    opacity:1;
+    pointer-events:auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .info-modal-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom: 12px;
+  }
+  .info-modal-header h3 {
+    font-size: 1.05rem;
+    font-weight:700;
+    color: var(--accent);
+  }
+  .info-modal-text {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    line-height:1.5;
+  }
+
+  /* ---------- Вкладка мини-игр (под заметками) ---------- */
+  .games-tab {
+    position: fixed;
+    left: 0;
+    top: calc(50% + 76px);
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    width: 40px;
+    background: var(--panel-3);
+    border: 1px solid var(--border);
+    border-left:none;
+    border-radius: 0 14px 14px 0;
+    color: var(--text-dim);
+    z-index: 1001;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.35);
+    overflow:hidden;
+  }
+  body.in-game .games-tab { display:flex; }
+
+  .games-toggle {
+    width:100%;
+    background:transparent;
+    border:none;
+    color:inherit;
+    padding: 12px 0;
+    font-size: 1.1rem;
+    line-height:1;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .games-toggle:hover { color: var(--text); }
+
+  .games-options {
+    max-height: 0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1);
+  }
+  .games-tab.open .games-options { max-height: 220px; }
+
+  .games-option {
+    width:100%;
+    background:transparent;
+    border:none;
+    border-top: 1px solid var(--border-soft);
+    color:inherit;
+    padding: 9px 0;
+    font-size: 1.02rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition: background .15s ease;
+  }
+  .games-option:hover { background: var(--panel-2); }
+  .games-option.hidden-launched { display:none; }
+
+  /* ---------- Плавающие мини-игры ---------- */
+  .mini-games-dock {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    display:flex;
+    flex-direction:column-reverse;
+    align-items:flex-end;
+    gap: 12px;
+    z-index: 1005;
+  }
+
+  .mini-game-widget {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    width: max-content;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+  .mini-game-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding: 7px 8px 7px 12px;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 0.76rem;
+    font-weight:700;
+    color: var(--text-dim);
+    letter-spacing:0.2px;
+  }
+
+  /* Полоска зарядки — заполняется 5 секунд, пока зажата мини-игра */
+  .hold-progress {
+    position:absolute;
+    left:0; bottom:0;
+    height:3px;
+    width:0%;
+    background: var(--danger);
+    pointer-events:none;
+    z-index:2;
+  }
+
+  .duck-widget-body {
+    padding: 16px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .duck-emoji-btn {
+    font-size: 2.4rem;
+    background:none;
+    border:none;
+    cursor:pointer;
+    line-height:1;
+    padding:0;
+    transition: transform .1s ease;
+    user-select:none;
+  }
+  .duck-emoji-btn.squish { transform: scaleX(1.3) scaleY(0.6); }
+
+  .ttt-widget-body {
+    padding: 12px 14px 14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .ttt-status { font-size:0.78rem; color: var(--text-dim); min-height:1.1em; }
+  .ttt-grid {
+    display:grid;
+    grid-template-columns: repeat(3, 36px);
+    grid-template-rows: repeat(3, 36px);
+    gap:4px;
+  }
+  .ttt-cell {
+    background: var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:7px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem; font-weight:700;
+    cursor:pointer;
+    color: var(--text);
+    padding:0;
+    font-family:inherit;
+  }
+  .ttt-cell:disabled { cursor:default; }
+  .ttt-cell.x-mark { color: var(--accent); }
+  .ttt-cell.o-mark { color: var(--accent-2); }
+
+  .mini-icon-widget {
+    position: relative;
+    width:48px; height:48px;
+    border-radius:50%;
+    background: var(--panel);
+    border:1px solid var(--border-soft);
+    box-shadow: var(--shadow);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem;
+    cursor:pointer;
+    transition: transform .15s ease;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+    touch-action: manipulation;
+  }
+  .mini-icon-widget:hover { transform: translateY(-2px); }
+  .mini-icon-widget .hold-progress { border-radius: 0; height:4px; }
+  .mini-icon-widget .mini-icon-emoji { display:inline-block; }
+  .mini-icon-widget.spinning .mini-icon-emoji {
+    animation: wheelSpin 9s cubic-bezier(.1,.85,.25,1);
+  }
+  @keyframes wheelSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(4320deg); }
+  }
+
+  /* Частицы взрыва при закрытии мини-игры зажатием */
+  #particlesLayer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2000;
+    overflow: hidden;
+  }
+  .explosion-particle {
+    position: fixed;
+    border-radius: 3px;
+    opacity: 1;
+    animation: particleFly .7s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  @keyframes particleFly {
+    to {
+      transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.25);
+      opacity: 0;
+    }
+  }
+
+  .fortune-banner {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translate(-50%, -140%);
+    max-width: min(420px, 88vw);
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    padding: 14px 18px;
+    z-index: 1006;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    transition: transform .4s cubic-bezier(.34,1.3,.64,1), opacity .3s ease;
+    opacity:0;
+    pointer-events:none;
+  }
+  .fortune-banner.show { transform: translate(-50%, 0); opacity:1; }
+  .fortune-banner .fortune-icon { font-size:1.4rem; flex-shrink:0; }
+  .fortune-banner .fortune-text { font-size:0.9rem; color: var(--text); line-height:1.4; }
+
+  @media (max-width: 400px) {
+    :root { --drawer-w: 84vw; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- стартовый экран -->
+  <div id="startScreen">
+    <h1>🚪 <span class="accent">БУНКЕР</span> <button class="info-btn" id="soundToggleBtn" title="Кастомные звуки из папки sounds" style="width:26px;height:26px;font-size:0.95rem;vertical-align:middle;">🔊</button></h1>
+    <div class="panel">
+      <label>Имя игрока</label>
+      <input type="text" id="playerName" placeholder="Твоё имя" value="Лёша">
+
+      <label>Апокалипсис</label>
+      <select id="apocalypseSelect">
+        <option value="Ядерная зима">Ядерная зима</option>
+        <option value="Зомби-вирус">Зомби-вирус</option>
+        <option value="Инопланетное вторжение">Инопланетное вторжение</option>
+        <option value="Пандемия бешенства">Пандемия бешенства</option>
+        <option value="Экологический коллапс">Экологический коллапс</option>
+      </select>
+
+      <label>Посольство (соседи по бункеру)</label>
+      <select id="embassySelect">
+        <option value="Никого">Никого</option>
+        <option value="Нищие">Нищие</option>
+        <option value="Пауки">Пауки</option>
+        <option value="Кенгуру">Кенгуру</option>
+        <option value="Пчёлы">Пчёлы</option>
+        <option value="Вороны">Вороны</option>
+        <option value="Панды">Панды</option>
+        <option value="Кроты-мутанты">Кроты-мутанты</option>
+        <option value="Секта фанатиков">Секта фанатиков</option>
+        <option value="Бродячие клоуны">Бродячие клоуны</option>
+        <option value="Роботы-уборщики">Роботы-уборщики</option>
+        <option value="Племя каннибалов">Племя каннибалов</option>
+      </select>
+
+      <label>Время в бункере (мес.)</label>
+      <input type="number" id="bunkerTime" placeholder="12" value="12" min="1" max="240">
+
+      <div class="admin-code-area">
+        <input type="password" id="adminCodeInput" placeholder="Код ведущего">
+        <button id="adminBtn" class="btn btn-auto">🎲 Ведущий</button>
+      </div>
+
+      <div class="row">
+        <button id="joinGameBtn" class="btn btn-primary">Войти в бункер</button>
+      </div>
+      <div id="codeError" class="error-text"></div>
+    </div>
+  </div>
+
+  <!-- экран ведущего -->
+  <div id="adminScreen" class="hidden">
+    <h2>Кабинет ведущего</h2>
+    <div class="panel">
+      <label>Случайный апокалипсис</label>
+      <div class="pill" id="adminApocalypse" style="width:100%; text-align:left; margin-bottom:10px;"></div>
+      <label>Посольство</label>
+      <div class="pill" id="adminEmbassy" style="width:100%; text-align:left; margin-bottom:10px;"></div>
+      <label>Время в бункере</label>
+      <div class="pill" id="adminBunkerTime" style="width:100%; text-align:left;"></div>
+      <div class="row">
+        <button id="generateAdminParams" class="btn">🔄 Сгенерировать</button>
+        <button id="backToStartFromAdmin" class="btn btn-ghost">↩ На главную</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- игровой экран -->
+  <div id="gameScreen" class="hidden">
+    <h2>Бункер №13</h2>
+    <div class="top-bar">
+      <span class="pill" id="displayApocalypse"></span>
+      <span class="pill" id="displayBunkerTime"></span>
+      <span class="pill" id="displayEmbassy"></span>
+    </div>
+
+    <div class="cards-grid" id="cardsContainer"></div>
+
+    <h3 class="section-title">Заметки об участниках</h3>
+    <div id="notesArea"></div>
+    <button id="addParticipantBtn" class="btn">➕ Добавить участника</button>
+
+    <hr>
+    <button id="resetGameBtn" class="btn btn-danger">↺ Начать заново</button>
+  </div>
+</div>
+
+<!-- Выдвижная панель личных заметок -->
+<button class="notes-tab" id="notesTab" aria-label="Открыть заметки">
+  <span class="notes-tab-icon">📝</span>
+  <span class="notes-tab-text">Заметки</span>
+</button>
+<div class="notes-overlay" id="notesOverlay"></div>
+<aside class="notes-drawer" id="notesDrawer">
+  <div class="notes-drawer-header">
+    <h3>Заметки</h3>
+    <button class="notes-close" id="notesClose">✕</button>
+  </div>
+  <div class="notes-chips" id="notesChips"></div>
+  <textarea class="notes-textarea" id="personalNotes" placeholder="Записывай сюда свои мысли, наблюдения и стратегии..."></textarea>
+  <div class="notes-actions">
+    <button id="clearNotesBtn" class="btn btn-danger">Очистить</button>
+    <button id="saveNotesBtn" class="btn btn-primary">Сохранить</button>
+  </div>
+  <div class="save-indicator" id="saveIndicator"></div>
+</aside>
+
+<!-- Мини-игры, чтобы не скучать, пока ждёшь своего хода -->
+<div class="games-tab" id="gamesTab">
+  <button class="games-toggle" id="gamesToggle" aria-label="Мини-игры">🎮</button>
+  <div class="games-options" id="gamesOptions">
+    <button class="games-option" data-game="duck" title="Уточка">🦆</button>
+    <button class="games-option" data-game="ttt" title="Крестики-нолики">⭕</button>
+    <button class="games-option" data-game="ball" title="Шар предсказаний">🔮</button>
+    <button class="games-option" data-game="wheel" title="Колесо фортуны">🎡</button>
+  </div>
+</div>
+<div class="mini-games-dock" id="miniGamesDock"></div>
+<div class="fortune-banner" id="fortuneBanner">
+  <span class="fortune-icon" id="fortuneBannerIcon">🔮</span>
+  <span class="fortune-text" id="fortuneBannerText"></span>
+</div>
+<audio id="quackSound" src="sounds/quack.mp3" preload="auto"></audio>
+<audio id="boomSound" src="sounds/boom.mp3" preload="auto"></audio>
+
+<!-- Звуки интерфейса. Файлы кладутся рядом с bunker.html (см. пояснение в чате). -->
+<audio id="sfxClick" src="sounds/click.mp3" preload="auto"></audio>
+<audio id="sfxCardFlip" src="sounds/card-flip.mp3" preload="auto"></audio>
+<audio id="sfxCardLocked" src="sounds/card-locked.mp3" preload="auto"></audio>
+<audio id="sfxAbilityOn" src="sounds/ability-on.mp3" preload="auto"></audio>
+<audio id="sfxAbilityOff" src="sounds/ability-off.mp3" preload="auto"></audio>
+<audio id="sfxCoinFlip" src="sounds/coin-flip.mp3" preload="auto"></audio>
+<audio id="sfxModalOpen" src="sounds/modal-open.mp3" preload="auto"></audio>
+<audio id="sfxModalClose" src="sounds/modal-close.mp3" preload="auto"></audio>
+<audio id="sfxDrawerOpen" src="sounds/drawer-open.mp3" preload="auto"></audio>
+<audio id="sfxDrawerClose" src="sounds/drawer-close.mp3" preload="auto"></audio>
+<audio id="sfxNotesSave" src="sounds/notes-save.mp3" preload="auto"></audio>
+<audio id="sfxGameReset" src="sounds/game-reset.mp3" preload="auto"></audio>
+<audio id="sfxGameStart" src="sounds/game-start.mp3" preload="auto"></audio>
+<audio id="sfxWheelSpin" src="sounds/wheel-spin.mp3" preload="auto"></audio>
+<audio id="sfxBallShake" src="sounds/ball-shake.mp3" preload="auto"></audio>
+<audio id="sfxFortuneReveal" src="sounds/fortune-reveal.mp3" preload="auto"></audio>
+<audio id="sfxTttPlayerMove" src="sounds/ttt-move-player.mp3" preload="auto"></audio>
+<audio id="sfxTttBotMove" src="sounds/ttt-move-bot.mp3" preload="auto"></audio>
+<audio id="sfxTttWin" src="sounds/ttt-win.mp3" preload="auto"></audio>
+<audio id="sfxTttLose" src="sounds/ttt-lose.mp3" preload="auto"></audio>
+<audio id="sfxTttDraw" src="sounds/ttt-draw.mp3" preload="auto"></audio>
+<audio id="sfxGamesToggle" src="sounds/games-toggle.mp3" preload="auto"></audio>
+<audio id="sfxSubaru" src="sounds/subaru-return-by-death.mp3" preload="auto"></audio>
+<div id="particlesLayer"></div>
+
+<!-- Окно с подробностями о персонаже-кроссовере -->
+<div class="modal-overlay" id="characterOverlay"></div>
+<div class="character-modal" id="characterModal">
+  <div class="character-modal-header">
+    <h3 id="characterModalName"></h3>
+    <button class="notes-close" id="characterModalClose">✕</button>
+  </div>
+  <div class="character-modal-universe" id="characterModalUniverse"></div>
+  <div class="character-modal-trait" id="characterModalTrait"></div>
+  <div class="character-modal-qualities-label">Качества</div>
+  <div class="character-modal-qualities" id="characterModalQualities"></div>
+  <div class="character-modal-fame-label" id="characterModalFameLabel">Чем прославился(-ась)</div>
+  <div class="character-modal-fame" id="characterModalFame"></div>
+</div>
+
+<div class="modal-overlay" id="infoOverlay"></div>
+<div class="info-modal" id="infoModal">
+  <div class="info-modal-header">
+    <h3 id="infoModalTitle"></h3>
+    <button class="notes-close" id="infoModalClose">✕</button>
+  </div>
+  <div class="info-modal-text" id="infoModalText"></div>
+</div>
+
+<script src="bunker-data.js"></script>
+<script>
+  (function() {
+    // Все базы данных (профессии, здоровье, хобби, фобии, иммунитеты,
+    // персонажи-кроссоверы, способности, посольство) — в файле bunker-data.js
+
+    // Уровни доверия к участникам
+    const trustLevels = [
+      {key:'neutral',    label:'Нейтрально',    cls:'trust-neutral'},
+      {key:'worthy',     label:'Достойный',     cls:'trust-worthy'},
+      {key:'suspicious', label:'Подозрительный',cls:'trust-suspicious'},
+      {key:'ally',       label:'Союзник',       cls:'trust-ally'},
+      {key:'rival',      label:'Соперник',      cls:'trust-rival'}
+    ];
+    function trustInfo(key) {
+      return trustLevels.find(t => t.key === key) || trustLevels[0];
+    }
+
+    // ---------- СОСТОЯНИЕ ----------
+    let state = {
+      playerName: "Лёша",
+      apocalypse: "Ядерная зима",
+      embassy: "Никого",
+      bunkerTime: 12,
+      currentPlayerCharacter: {
+        profession: null, age: null, gender: null, health: null,
+        hobby: null, baggage: null, fact1: null, fact2: null,
+        phobia: null, immunity: null, ability: null, crossover: null
+      },
+      revealedCards: {
+        profession: false, age: false, gender: false, health: false,
+        hobby: false, baggage: false, fact1: false, fact2: false,
+        phobia: false, immunity: false, ability: false
+      },
+      cooldowns: {
+        profession: 0, age: 0, gender: 0, health: 0,
+        hobby: 0, baggage: 0, fact1: 0, fact2: 0,
+        phobia: 0, immunity: 0
+      },
+      participants: [],
+      usedFacts: [],
+      adminMode: false,
+      personalNotes: "",
+      abilityState: {
+        hasAbility: false,
+        activated: false,
+        used: false,
+        coinResult: null
+      }
+    };
+
+    let participantIdCounter = 1;
+    let activeNotesTarget = 'self'; // 'self' или id участника
+
+    // Загружаем заметки из localStorage при инициализации
+    if (localStorage.getItem('bunkerPersonalNotes')) {
+      state.personalNotes = localStorage.getItem('bunkerPersonalNotes');
+    }
+
+    // ---------- УТИЛИТЫ ----------
+    function randomFromArray(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+    function randomAge() {
+      // Нормальное распределение (Бокс-Мюллер) со средним 42 и разбросом 13:
+      // средний возраст выпадает часто, крайние значения — редко.
+      const mean = 42, std = 13, min = 18, max = 90;
+      const u1 = Math.random(), u2 = Math.random();
+      const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      let age = Math.round(mean + z * std);
+      if (age < min) age = min;
+      if (age > max) age = max;
+      return age;
+    }
+    function getUniqueFacts(count) {
+      let available = factsPool.filter(f => !state.usedFacts.includes(f));
+      if (available.length < count) {
+        state.usedFacts = [];
+        available = [...factsPool];
+      }
+      const selected = [];
+      for (let i = 0; i < count; i++) {
+        const randIndex = Math.floor(Math.random() * available.length);
+        selected.push(available[randIndex]);
+        state.usedFacts.push(available[randIndex]);
+        available.splice(randIndex, 1);
+      }
+      return selected;
+    }
+
+    // Выбор способности по весам
+    function getRandomAbility() {
+      const totalWeight = abilities.reduce((sum, a) => sum + a.weight, 0);
+      let random = Math.random() * totalWeight;
+      for (const ability of abilities) {
+        random -= ability.weight;
+        if (random <= 0) return ability;
+      }
+      return abilities[abilities.length - 1];
+    }
+
+    function generateRandomCharacter() {
+      const facts = getUniqueFacts(2);
+
+      // 50% шанс получить способность
+      const hasAbility = Math.random() < 0.5;
+      // 30% шанс получить персонажа из другой вселенной (просто ради веселья)
+      const hasCrossover = Math.random() < 0.3;
+
+      return {
+        profession: randomFromArray(professions),
+        age: randomAge(),
+        gender: randomFromArray(genders),
+        health: randomFromArray(healthStates),
+        hobby: randomFromArray(hobbies),
+        baggage: randomFromArray(baggageItems),
+        fact1: facts[0],
+        fact2: facts[1],
+        phobia: randomFromArray(phobias),
+        immunity: randomFromArray(immunities),
+        ability: hasAbility ? getRandomAbility() : null,
+        crossover: hasCrossover ? randomFromArray(crossoverCharacters) : null
+      };
+    }
+
+    function saveNotesToLocalStorage() {
+      localStorage.setItem('bunkerPersonalNotes', state.personalNotes);
+      const indicator = document.getElementById('saveIndicator');
+      if (indicator) {
+        indicator.textContent = '✓ Сохранено ' + new Date().toLocaleTimeString();
+        setTimeout(() => {
+          if (indicator) indicator.textContent = '';
+        }, 3000);
+      }
+    }
+
+    // Таймеры кулдаунов
+    let timerInterval = null;
+    function startGlobalTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        let changed = false;
+        for (let key in state.cooldowns) {
+          if (state.cooldowns[key] > 0) {
+            state.cooldowns[key] = Math.max(0, state.cooldowns[key] - 1);
+            changed = true;
+          }
+        }
+        if (changed) renderGame();
+      }, 1000);
+    }
+
+    // ---------- ОТРИСОВКА ----------
+    const startScreen = document.getElementById('startScreen');
+    const adminScreen = document.getElementById('adminScreen');
+    const gameScreen = document.getElementById('gameScreen');
+
+    function showScreen(screen) {
+      startScreen.classList.add('hidden');
+      adminScreen.classList.add('hidden');
+      gameScreen.classList.add('hidden');
+      screen.classList.remove('hidden');
+
+      // Вкладка заметок видна только во время игры
+      if (screen === gameScreen) {
+        document.body.classList.add('in-game');
+      } else {
+        document.body.classList.remove('in-game');
+        closeNotes();
+        closeAllMiniGames();
+      }
+    }
+
+    function renderAdmin() {
+      document.getElementById('adminApocalypse').textContent = state.apocalypse;
+      document.getElementById('adminEmbassy').textContent = state.embassy;
+      document.getElementById('adminBunkerTime').textContent = state.bunkerTime + ' мес.';
+    }
+
+    // Размеры плиток для карточек — создают неоднородную мозаику
+    const cardSizes = {
+      crossover: 'size-banner-thin',
+      profession: 'size-wide',
+      age: '',
+      gender: '',
+      health: 'size-wide',
+      hobby: 'size-tall',
+      baggage: 'size-wide',
+      fact1: '',
+      fact2: '',
+      phobia: 'size-wide',
+      immunity: 'size-wide',
+      ability: 'size-banner'
+    };
+
+    function renderGame() {
+      document.getElementById('displayApocalypse').textContent = `☣️ ${state.apocalypse}`;
+      document.getElementById('displayBunkerTime').textContent = `⏳ ${state.bunkerTime} мес.`;
+      document.getElementById('displayEmbassy').textContent = `🏘️ ${state.embassy}`;
+
+      const container = document.getElementById('cardsContainer');
+      const cardKeys = [];
+      if (state.currentPlayerCharacter.crossover) cardKeys.push('crossover');
+      cardKeys.push('profession', 'age', 'gender', 'health', 'hobby', 'baggage', 'fact1', 'fact2', 'phobia', 'immunity', 'ability');
+      const titles = {
+        crossover: 'Персонаж',
+        profession: 'Профессия', age: 'Возраст', gender: 'Пол', health: 'Здоровье',
+        hobby: 'Хобби', baggage: 'Багаж', fact1: 'Факт 1', fact2: 'Факт 2',
+        phobia: 'Фобия', immunity: 'Иммунитет', ability: 'Способность'
+      };
+
+      container.innerHTML = '';
+      cardKeys.forEach(key => {
+        const card = document.createElement('div');
+        const sizeClass = cardSizes[key] || '';
+
+        // Карточка персонажа-кроссовера: всегда открыта, ведёт себя иначе
+        if (key === 'crossover') {
+          const c = state.currentPlayerCharacter.crossover;
+          card.className = `card crossover ${sizeClass}`;
+          card.innerHTML = `
+            <h4>${titles[key]} · ${c.universe || ''}</h4>
+            <div class="value">${c.name}</div>
+            <div class="small-desc">${c.trait}</div>
+          `;
+          card.addEventListener('click', () => openCharacterModal());
+          container.appendChild(card);
+          return;
+        }
+
+        // Определяем классы для карточки способности
+        if (key === 'ability') {
+          if (!state.abilityState.hasAbility) {
+            card.className = `card locked ${sizeClass}`;
+          } else if (state.abilityState.used) {
+            card.className = `card ability-used ${sizeClass}`;
+          } else if (state.abilityState.activated) {
+            card.className = `card ability-active ${sizeClass}`;
+          } else {
+            card.className = `card ${sizeClass}`;
+          }
+        } else {
+          card.className = `card ${sizeClass} ${state.cooldowns[key] > 0 ? 'locked' : ''}`;
+        }
+
+        const charData = state.currentPlayerCharacter[key];
+        const isRevealed = state.revealedCards[key];
+
+        let displayValue = '❓';
+        let descText = '';
+
+        if (key === 'ability') {
+          if (!state.abilityState.hasAbility) {
+            displayValue = '🚫';
+            descText = 'Нет способности';
+          } else if (isRevealed && charData) {
+            displayValue = charData.name;
+            descText = charData.desc || '';
+          }
+        } else {
+          if (isRevealed && charData) {
+            if (typeof charData === 'object') {
+              displayValue = charData.name;
+              descText = charData.desc || '';
+            } else {
+              displayValue = charData;
+            }
+          }
+        }
+
+        // Для карточки "Пол" пояснение не печатается прямо на карточке (там и так
+        // может быть длинный текст, из-за которого ломалась сетка) — вместо этого
+        // под названием появляется круглая кнопка "?", открывающая всплывающее окно.
+        const showDescInline = descText && key !== 'gender';
+
+        card.innerHTML = `
+          <h4>${titles[key]}</h4>
+          <div class="value">${displayValue}</div>
+          ${showDescInline ? `<div class="small-desc">${descText}</div>` : ''}
+          ${key !== 'ability' && state.cooldowns[key] > 0 ? `<div class="timer-badge">${state.cooldowns[key]}с</div>` : ''}
+        `;
+
+        if (key === 'gender' && descText) {
+          const infoBtn = document.createElement('button');
+          infoBtn.type = 'button';
+          infoBtn.className = 'info-btn';
+          infoBtn.textContent = '?';
+          infoBtn.setAttribute('aria-label', 'Что это значит');
+          infoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openInfoModal(titles.gender, displayValue, descText);
+          });
+          card.appendChild(infoBtn);
+        }
+
+        // Добавляем кнопки для способности
+        if (key === 'ability' && state.abilityState.hasAbility && !state.abilityState.used && isRevealed) {
+          if (!state.abilityState.activated) {
+            const activateBtn = document.createElement('button');
+            activateBtn.className = 'btn btn-sm ability-btn';
+            activateBtn.textContent = 'Активировать';
+            activateBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              activateAbility();
+            });
+            card.appendChild(activateBtn);
+          } else {
+            const deactivateBtn = document.createElement('button');
+            deactivateBtn.className = 'btn btn-sm btn-danger ability-btn';
+            deactivateBtn.textContent = 'Деактивировать';
+            deactivateBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              deactivateAbility();
+            });
+            card.appendChild(deactivateBtn);
+          }
+
+          // Показываем результат монетки для Азартного
+          if (state.abilityState.coinResult && state.currentPlayerCharacter.ability.name.includes('Азартный')) {
+            const coinDiv = document.createElement('div');
+            coinDiv.style.marginTop = '6px';
+            coinDiv.style.fontWeight = '700';
+            coinDiv.style.fontSize = '0.85rem';
+            coinDiv.style.color = state.abilityState.coinResult === 'Орел' ? '#e3b45e' : '#e0736a';
+            coinDiv.textContent = state.abilityState.coinResult === 'Орел' ? '🦅 Орел! Голос ×2' : '🪙 Решка! Голос не считается';
+            card.appendChild(coinDiv);
+          }
+        } else if (key === 'ability' && state.abilityState.used) {
+          const usedLabel = document.createElement('div');
+          usedLabel.style.marginTop = '6px';
+          usedLabel.style.color = 'var(--text-faint)';
+          usedLabel.style.fontSize = '0.8rem';
+          usedLabel.textContent = 'Использована';
+          card.appendChild(usedLabel);
+        }
+
+        if (key !== 'ability') {
+          card.addEventListener('click', () => handleCardClick(key));
+        } else if (state.abilityState.hasAbility && !state.abilityState.used) {
+          card.addEventListener('click', () => handleCardClick(key));
+        }
+
+        container.appendChild(card);
+      });
+
+      // Заметки
+      const notesDiv = document.getElementById('notesArea');
+      notesDiv.innerHTML = '';
+
+      // Основной игрок
+      const mainNote = document.createElement('div');
+      mainNote.className = 'note-block';
+      mainNote.innerHTML = `<div class="participant-name">${state.playerName || 'Игрок'} (вы)</div>`;
+      const crossoverVal = state.currentPlayerCharacter.crossover ? state.currentPlayerCharacter.crossover.name : 'Нет';
+      mainNote.innerHTML += `<div class="note-line"><span>Персонаж</span> <span>${crossoverVal}</span></div>`;
+      const fields = ['profession','age','gender','health','hobby','baggage','fact1','fact2','phobia','immunity','ability'];
+      fields.forEach(f => {
+        let val = '?';
+        if (f === 'ability') {
+          if (!state.abilityState.hasAbility) {
+            val = 'Нет';
+          } else if (state.revealedCards[f] && state.currentPlayerCharacter[f]) {
+            val = state.currentPlayerCharacter[f].name;
+          }
+        } else {
+          if (state.revealedCards[f] && state.currentPlayerCharacter[f]) {
+            val = typeof state.currentPlayerCharacter[f] === 'object' ? state.currentPlayerCharacter[f].name : state.currentPlayerCharacter[f];
+          }
+        }
+        mainNote.innerHTML += `<div class="note-line"><span>${titles[f]}</span> <span>${val}</span></div>`;
+      });
+
+      // Добавляем статус способности
+      if (state.abilityState.hasAbility && state.revealedCards.ability) {
+        const statusDiv = document.createElement('div');
+
+        if (state.abilityState.used) {
+          statusDiv.className = 'ability-status status-used';
+          statusDiv.textContent = 'Статус: Использована';
+        } else if (state.abilityState.activated) {
+          statusDiv.className = 'ability-status status-active';
+          statusDiv.textContent = 'Статус: Активирована';
+        } else {
+          statusDiv.className = 'ability-status status-idle';
+          statusDiv.textContent = 'Статус: Не активирована';
+        }
+
+        mainNote.appendChild(statusDiv);
+      }
+
+      notesDiv.appendChild(mainNote);
+
+      // Остальные участники
+      state.participants.forEach((p, idx) => {
+        const pNote = document.createElement('div');
+        pNote.className = 'note-block';
+        const t = trustInfo(p.trust);
+        pNote.innerHTML = `
+          <div class="participant-header">
+            <span class="participant-name">${p.name}</span>
+            <button class="trust-badge ${t.cls}" data-id="${p.id}">${t.label}</button>
+            <button class="btn remove-btn" data-index="${idx}">✕</button>
+          </div>
+        `;
+
+        const participantFields = ['profession','age','gender','health','hobby','baggage','fact1','fact2','phobia','immunity'];
+        participantFields.forEach(f => {
+          const val = p[f] || '?';
+          const lineDiv = document.createElement('div');
+          lineDiv.className = 'note-line';
+          lineDiv.style.cursor = 'pointer';
+          lineDiv.title = 'Нажмите, чтобы изменить';
+          lineDiv.innerHTML = `<span>${titles[f]}</span> <span>${val}</span>`;
+
+          lineDiv.addEventListener('click', () => {
+            const newValue = prompt(`Изменить "${titles[f]}" для ${p.name}:`, p[f] || '');
+            if (newValue !== null && newValue.trim() !== '') {
+              p[f] = newValue.trim();
+              renderGame();
+            }
+          });
+
+          pNote.appendChild(lineDiv);
+        });
+
+        notesDiv.appendChild(pNote);
+      });
+
+      // Обработчики для кнопок удаления
+      document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const index = parseInt(btn.getAttribute('data-index'));
+          const removed = state.participants[index];
+          if (confirm(`Удалить участника "${removed.name}"?`)) {
+            if (activeNotesTarget === removed.id) activeNotesTarget = 'self';
+            state.participants.splice(index, 1);
+            renderGame();
+          }
+        });
+      });
+
+      // Обработчики для значков доверия
+      document.querySelectorAll('.trust-badge').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = parseInt(btn.getAttribute('data-id'));
+          const p = findParticipantById(id);
+          if (!p) return;
+          const idx = trustLevels.findIndex(t => t.key === p.trust);
+          p.trust = trustLevels[(idx + 1) % trustLevels.length].key;
+          renderGame();
+        });
+      });
+
+      // Обновляем панель заметок
+      renderNotesChips();
+      const notesTextarea = document.getElementById('personalNotes');
+      if (notesTextarea && notesTextarea !== document.activeElement) {
+        notesTextarea.value = getActiveNotesValue();
+      }
+    }
+
+    function findParticipantById(id) {
+      return state.participants.find(p => p.id === id);
+    }
+
+    function activateAbility() {
+      if (!state.abilityState.hasAbility || state.abilityState.used) return;
+
+      state.abilityState.activated = true;
+
+      // Для способности "Азартный" - подбрасываем монетку
+      if (state.currentPlayerCharacter.ability && state.currentPlayerCharacter.ability.name.includes('Азартный')) {
+        state.abilityState.coinResult = Math.random() < 0.5 ? 'Орел' : 'Решка';
+        playSfx('sfxCoinFlip', 700);
+      }
+
+      playSfx('sfxAbilityOn', 660);
+
+      // Запускаем таймер на 90 секунд
+      startAbilityTimer();
+
+      renderGame();
+    }
+
+    function deactivateAbility() {
+      if (!state.abilityState.hasAbility || state.abilityState.used) return;
+
+      state.abilityState.activated = false;
+      state.abilityState.used = true;
+      state.abilityState.coinResult = null;
+      playSfx('sfxAbilityOff', 300);
+
+      // Останавливаем таймер
+      if (abilityTimer) {
+        clearTimeout(abilityTimer);
+        abilityTimer = null;
+      }
+
+      renderGame();
+    }
+
+    let abilityTimer = null;
+
+    function startAbilityTimer() {
+      // Очищаем предыдущий таймер, если был
+      if (abilityTimer) clearTimeout(abilityTimer);
+
+      // Устанавливаем новый таймер на 90 секунд (1.5 минуты)
+      abilityTimer = setTimeout(() => {
+        if (state.abilityState.activated && !state.abilityState.used) {
+          state.abilityState.activated = false;
+          state.abilityState.used = true;
+          state.abilityState.coinResult = null;
+          renderGame();
+        }
+      }, 90000); // 90000 мс = 1.5 минуты
+    }
+
+    function handleCardClick(key) {
+      if (key === 'ability') {
+        if (!state.abilityState.hasAbility || state.abilityState.used) return;
+        // Не запрещаем клик, если уже раскрыта
+        if (state.revealedCards[key]) return;
+      } else {
+        if (state.cooldowns[key] > 0) { playSfx('sfxCardLocked', 200); return; }
+        if (state.revealedCards[key]) return;
+      }
+
+      state.revealedCards[key] = true;
+      playSfx('sfxCardFlip', 520);
+
+      if (key !== 'ability') {
+        state.cooldowns[key] = 120;
+      }
+
+      renderGame();
+    }
+
+    function resetAndGoToGame() {
+      closeCharacterModal();
+      closeAllMiniGames();
+      const char = generateRandomCharacter();
+      state.currentPlayerCharacter = char;
+      // Все карты изначально скрыты, КРОМЕ СПОСОБНОСТИ
+      state.revealedCards = {
+        profession: false, age: false, gender: false, health: false,
+        hobby: false, baggage: false, fact1: false, fact2: false,
+        phobia: false, immunity: false,
+        ability: true // Способность всегда раскрыта
+      };
+      state.cooldowns = {
+        profession: 0, age: 0, gender: 0, health: 0,
+        hobby: 0, baggage: 0, fact1: 0, fact2: 0,
+        phobia: 0, immunity: 0
+      };
+      state.participants = [];
+      state.adminMode = false;
+      state.abilityState = {
+        hasAbility: char.ability !== null,
+        activated: false,
+        used: false,
+        coinResult: null
+      };
+      participantIdCounter = 1;
+      activeNotesTarget = 'self';
+
+      if (abilityTimer) {
+        clearTimeout(abilityTimer);
+        abilityTimer = null;
+      }
+
+      showScreen(gameScreen);
+      startGlobalTimer();
+      renderGame();
+
+      // Восстанавливаем текст заметок
+      document.getElementById('personalNotes').value = state.personalNotes;
+
+      // Отдельный узнаваемый звук на случай, если выпал персонаж "Нацуки Субару"
+      if (char.crossover && char.crossover.name === 'Нацуки Субару') {
+        setTimeout(() => playSfx('sfxSubaru', 300), 250);
+      }
+    }
+
+    // ---------- СОБЫТИЯ ----------
+    document.getElementById('soundToggleBtn').addEventListener('click', () => {
+      customSoundsEnabled = !customSoundsEnabled;
+      const btn = document.getElementById('soundToggleBtn');
+      btn.textContent = customSoundsEnabled ? '🔊' : '🔇';
+      btn.style.textDecoration = customSoundsEnabled ? 'none' : 'line-through';
+      btn.style.opacity = customSoundsEnabled ? '1' : '0.6';
+    });
+
+    document.getElementById('joinGameBtn').addEventListener('click', () => {
+      state.playerName = document.getElementById('playerName').value.trim() || 'Лёша';
+      state.apocalypse = document.getElementById('apocalypseSelect').value;
+      state.embassy = document.getElementById('embassySelect').value;
+      state.bunkerTime = parseInt(document.getElementById('bunkerTime').value) || 12;
+      playSfx('sfxGameStart', 500);
+      resetAndGoToGame();
+    });
+
+    document.getElementById('adminBtn').addEventListener('click', () => {
+      const code = document.getElementById('adminCodeInput').value.trim();
+      const errorDiv = document.getElementById('codeError');
+      if (code === '15035') {
+        errorDiv.textContent = '';
+        state.adminMode = true;
+        state.apocalypse = randomFromArray(["Ядерная зима","Зомби-вирус","Инопланетное вторжение","Пандемия бешенства","Экологический коллапс"]);
+        state.embassy = randomFromArray(embassyOptions);
+        state.bunkerTime = Math.floor(Math.random() * 60) + 6;
+        showScreen(adminScreen);
+        renderAdmin();
+      } else {
+        errorDiv.textContent = 'Неверный код доступа';
+      }
+    });
+
+    document.getElementById('generateAdminParams').addEventListener('click', () => {
+      state.apocalypse = randomFromArray(["Ядерная зима","Зомби-вирус","Инопланетное вторжение","Пандемия бешенства","Экологический коллапс"]);
+      state.embassy = randomFromArray(embassyOptions);
+      state.bunkerTime = Math.floor(Math.random() * 60) + 6;
+      renderAdmin();
+    });
+
+    document.getElementById('backToStartFromAdmin').addEventListener('click', () => {
+      showScreen(startScreen);
+    });
+
+    document.getElementById('addParticipantBtn').addEventListener('click', () => {
+      const name = prompt('Имя участника:');
+      if (!name || !name.trim()) return;
+
+      const newPerson = {
+        id: participantIdCounter++,
+        name: name.trim(),
+        profession: '?',
+        age: '?',
+        gender: '?',
+        health: '?',
+        hobby: '?',
+        baggage: '?',
+        fact1: '?',
+        fact2: '?',
+        phobia: '?',
+        immunity: '?',
+        trust: 'neutral',
+        notes: ''
+      };
+
+      state.participants.push(newPerson);
+      renderGame();
+
+      setTimeout(() => {
+        const firstField = prompt(`Введите профессию для ${newPerson.name}:`);
+        if (firstField !== null && firstField.trim() !== '') {
+          newPerson.profession = firstField.trim();
+          renderGame();
+        }
+      }, 100);
+    });
+
+    // ---------- Окно с подробностями о персонаже-кроссовере ----------
+    const characterOverlay = document.getElementById('characterOverlay');
+    const characterModal = document.getElementById('characterModal');
+    const characterModalClose = document.getElementById('characterModalClose');
+
+    function openCharacterModal() {
+      const c = state.currentPlayerCharacter.crossover;
+      if (!c) return;
+      document.getElementById('characterModalName').textContent = c.name;
+      document.getElementById('characterModalUniverse').textContent = c.universe || '';
+      document.getElementById('characterModalTrait').textContent = c.trait;
+      document.getElementById('characterModalQualities').textContent = c.qualities;
+      const fameLabel = document.getElementById('characterModalFameLabel');
+      const fameEl = document.getElementById('characterModalFame');
+      if (c.fame) {
+        fameEl.textContent = c.fame;
+        fameLabel.style.display = '';
+        fameEl.style.display = '';
+      } else {
+        fameLabel.style.display = 'none';
+        fameEl.style.display = 'none';
+      }
+      characterModal.classList.add('open');
+      characterOverlay.classList.add('open');
+      playSfx('sfxModalOpen', 480);
+    }
+    function closeCharacterModal() {
+      characterModal.classList.remove('open');
+      characterOverlay.classList.remove('open');
+      playSfx('sfxModalClose', 320);
+    }
+    characterOverlay.addEventListener('click', closeCharacterModal);
+    characterModalClose.addEventListener('click', closeCharacterModal);
+
+    // ---------- Окно-пояснение (например, для гендера) ----------
+    const infoOverlay = document.getElementById('infoOverlay');
+    const infoModal = document.getElementById('infoModal');
+    const infoModalClose = document.getElementById('infoModalClose');
+
+    function openInfoModal(label, value, text) {
+      document.getElementById('infoModalTitle').textContent = `${label}: ${value}`;
+      document.getElementById('infoModalText').textContent = text;
+      infoModal.classList.add('open');
+      infoOverlay.classList.add('open');
+      playSfx('sfxModalOpen', 480);
+    }
+    function closeInfoModal() {
+      infoModal.classList.remove('open');
+      infoOverlay.classList.remove('open');
+      playSfx('sfxModalClose', 320);
+    }
+    infoOverlay.addEventListener('click', closeInfoModal);
+    infoModalClose.addEventListener('click', closeInfoModal);
+
+    // ---------- Мини-игры (чтобы не скучать в чужой ход) ----------
+    const gamesTab = document.getElementById('gamesTab');
+    const gamesToggle = document.getElementById('gamesToggle');
+    const miniGamesDock = document.getElementById('miniGamesDock');
+    const fortuneBanner = document.getElementById('fortuneBanner');
+    const fortuneBannerIcon = document.getElementById('fortuneBannerIcon');
+    const fortuneBannerText = document.getElementById('fortuneBannerText');
+    const quackSound = document.getElementById('quackSound');
+
+    gamesToggle.addEventListener('click', () => {
+      const isOpen = gamesTab.classList.toggle('open');
+      gamesToggle.textContent = isOpen ? '❌' : '🎮';
+      playSfx('sfxGamesToggle', isOpen ? 420 : 340);
+    });
+
+    document.querySelectorAll('.games-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const game = btn.getAttribute('data-game');
+        launchMiniGame(game);
+        btn.classList.add('hidden-launched');
+      });
+    });
+
+    function launchMiniGame(game) {
+      if (document.getElementById('miniGame-' + game)) return;
+      if (game === 'duck') createDuckWidget();
+      else if (game === 'ttt') createTttWidget();
+      else if (game === 'ball') createBallWidget();
+      else if (game === 'wheel') createWheelWidget();
+    }
+
+    function closeMiniGame(game) {
+      const el = document.getElementById('miniGame-' + game);
+      if (el) el.remove();
+      const btn = document.querySelector(`.games-option[data-game="${game}"]`);
+      if (btn) btn.classList.remove('hidden-launched');
+    }
+
+    function closeAllMiniGames() {
+      ['duck', 'ttt', 'ball', 'wheel'].forEach(closeMiniGame);
+      gamesTab.classList.remove('open');
+      gamesToggle.textContent = '🎮';
+      fortuneBanner.classList.remove('show');
+    }
+
+    // --- Уточка ---
+    function createDuckWidget() {
+      const el = document.createElement('div');
+      el.className = 'mini-game-widget';
+      el.id = 'miniGame-duck';
+      el.innerHTML = `
+        <div class="mini-game-header">
+          <span>🦆 Уточка</span>
+        </div>
+        <div class="duck-widget-body">
+          <button class="duck-emoji-btn" id="duckBtn">🦆</button>
+        </div>
+      `;
+      miniGamesDock.appendChild(el);
+      attachHoldToClose(el, 'duck');
+      const duckBtn = el.querySelector('#duckBtn');
+      duckBtn.addEventListener('click', () => {
+        duckBtn.classList.add('squish');
+        playQuack();
+        setTimeout(() => duckBtn.classList.remove('squish'), 150);
+      });
+    }
+
+    // Универсальный проигрыватель звуков интерфейса: пытается сыграть mp3 по id,
+    // а если файла нет/звук не поддерживается/кастомные звуки выключены — синтезирует бип.
+    let customSoundsEnabled = true;
+    function playSfx(id, freq) {
+      if (customSoundsEnabled) {
+        const el = document.getElementById(id);
+        if (el) {
+          try {
+            el.currentTime = 0;
+            const p = el.play();
+            if (p && p.catch) p.catch(() => synthBeep(freq));
+            return;
+          } catch (e) { /* падаем в синтез ниже */ }
+        }
+      }
+      synthBeep(freq);
+    }
+
+    function synthBeep(freq = 440, dur = 0.09) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur + 0.02);
+      } catch (e) { /* тишина, если Web Audio недоступен */ }
+    }
+
+    function playQuack() {
+      if (!customSoundsEnabled) { synthQuack(); return; }
+      try {
+        quackSound.currentTime = 0;
+        const p = quackSound.play();
+        if (p && p.catch) p.catch(() => synthQuack());
+      } catch (e) {
+        synthQuack();
+      }
+    }
+
+    function synthQuack() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(620, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.16);
+      } catch (e) { /* тишина, если Web Audio недоступен */ }
+    }
+
+    // --- Закрытие мини-игр зажатием (5 секунд) — вместо крестика ---
+    const boomSound = document.getElementById('boomSound');
+    const particlesLayer = document.getElementById('particlesLayer');
+    const HOLD_DURATION = 1500;
+    function attachHoldToClose(el, gameKey) {
+      const bar = document.createElement('div');
+      bar.className = 'hold-progress';
+      el.appendChild(bar);
+
+      let holdTimer = null;
+      let holding = false;
+
+      function startHold() {
+        if (holding) return;
+        holding = true;
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        void bar.offsetWidth; // форсируем перерасчёт стилей, чтобы transition сработал с нуля
+        bar.style.transition = `width ${HOLD_DURATION}ms linear`;
+        bar.style.width = '100%';
+        holdTimer = setTimeout(() => {
+          holding = false;
+          explodeWidget(el, gameKey);
+        }, HOLD_DURATION);
+      }
+
+      function cancelHold() {
+        if (!holding) return;
+        holding = false;
+        clearTimeout(holdTimer);
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+      }
+
+      el.addEventListener('pointerdown', startHold);
+      el.addEventListener('pointerup', cancelHold);
+      el.addEventListener('pointerleave', cancelHold);
+      el.addEventListener('pointercancel', cancelHold);
+      el.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    function explodeWidget(el, gameKey) {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      el.remove();
+      spawnExplosionParticles(cx, cy);
+      playBoom();
+      const btn = document.querySelector(`.games-option[data-game="${gameKey}"]`);
+      if (btn) btn.classList.remove('hidden-launched');
+    }
+
+    function spawnExplosionParticles(cx, cy) {
+      if (!particlesLayer) return;
+      const colors = ['var(--accent)', 'var(--accent-2)', 'var(--panel-3)', 'var(--border)', '#c9a6f0', 'var(--danger)'];
+      const count = 22;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'explosion-particle';
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 70 + Math.random() * 150;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+        const size = 4 + Math.random() * 9;
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.setProperty('--dx', dx.toFixed(1) + 'px');
+        p.style.setProperty('--dy', dy.toFixed(1) + 'px');
+        p.style.setProperty('--rot', (Math.random() * 720 - 360).toFixed(0) + 'deg');
+        particlesLayer.appendChild(p);
+        p.addEventListener('animationend', () => p.remove());
+      }
+    }
+
+    function playBoom() {
+      if (!customSoundsEnabled) { synthBoom(); return; }
+      try {
+        boomSound.currentTime = 0;
+        const p = boomSound.play();
+        if (p && p.catch) p.catch(() => synthBoom());
+      } catch (e) {
+        synthBoom();
+      }
+    }
+
+    function synthBoom() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const duration = 0.45;
+        const bufferSize = Math.floor(ctx.sampleRate * duration);
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + duration);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start();
+      } catch (e) { /* тишина, если Web Audio недоступен */ }
+    }
+
+    // --- Крестики-нолики ---
+    let tttBoard = Array(9).fill(null);
+    let tttLastBotMove = null;
+    let tttGameOver = false;
+    let tttPlayerTurn = true;
+
+    const TTT_LINES = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    function createTttWidget() {
+      const el = document.createElement('div');
+      el.className = 'mini-game-widget';
+      el.id = 'miniGame-ttt';
+      el.innerHTML = `
+        <div class="mini-game-header">
+          <span>⭕ Крестики-нолики</span>
+        </div>
+        <div class="ttt-widget-body">
+          <div class="ttt-status" id="tttStatus">Твой ход (✕)</div>
+          <div class="ttt-grid" id="tttGrid"></div>
+        </div>
+      `;
+      miniGamesDock.appendChild(el);
+      attachHoldToClose(el, 'ttt');
+      tttBoard = Array(9).fill(null);
+      tttLastBotMove = null;
+      tttGameOver = false;
+      tttPlayerTurn = true;
+      renderTtt();
+    }
+
+    function renderTtt() {
+      const grid = document.getElementById('tttGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      tttBoard.forEach((v, i) => {
+        const cell = document.createElement('button');
+        cell.className = 'ttt-cell' + (v === 'X' ? ' x-mark' : v === 'O' ? ' o-mark' : '');
+        cell.textContent = v === 'X' ? '✕' : v === 'O' ? '○' : '';
+        cell.disabled = !!v || tttGameOver || !tttPlayerTurn;
+        cell.addEventListener('click', () => handleTttCellClick(i));
+        grid.appendChild(cell);
+      });
+    }
+
+    function handleTttCellClick(i) {
+      if (tttGameOver || !tttPlayerTurn || tttBoard[i]) return;
+      tttBoard[i] = 'X';
+      tttPlayerTurn = false;
+      playSfx('sfxTttPlayerMove', 480);
+      renderTtt();
+
+      const winner = tttCheckWinner(tttBoard);
+      if (winner || tttBoard.every(c => c)) {
+        finishTtt(winner);
+        return;
+      }
+      const status = document.getElementById('tttStatus');
+      if (status) status.textContent = 'Ход бота...';
+      setTimeout(botTttMove, 500);
+    }
+
+    function botTttMove() {
+      if (tttGameOver) return;
+      const move = getTttBotMove(tttBoard, tttLastBotMove);
+      if (move !== null && move !== undefined) {
+        tttBoard[move] = 'O';
+        tttLastBotMove = move;
+        playSfx('sfxTttBotMove', 360);
+      }
+      tttPlayerTurn = true;
+      renderTtt();
+
+      const winner = tttCheckWinner(tttBoard);
+      if (winner || tttBoard.every(c => c)) {
+        finishTtt(winner);
+        return;
+      }
+      const status = document.getElementById('tttStatus');
+      if (status) status.textContent = 'Твой ход (✕)';
+    }
+
+    function finishTtt(winner) {
+      tttGameOver = true;
+      renderTtt();
+      const status = document.getElementById('tttStatus');
+      if (status) {
+        if (winner === 'X') { status.textContent = 'Ты выиграл! 🎉'; playSfx('sfxTttWin', 700); }
+        else if (winner === 'O') { status.textContent = 'Бот выиграл 🤖'; playSfx('sfxTttLose', 220); }
+        else { status.textContent = 'Ничья 🤝'; playSfx('sfxTttDraw', 400); }
+      }
+      setTimeout(() => {
+        tttBoard = Array(9).fill(null);
+        tttLastBotMove = null;
+        tttGameOver = false;
+        tttPlayerTurn = true;
+        renderTtt();
+        const st = document.getElementById('tttStatus');
+        if (st) st.textContent = 'Твой ход (✕)';
+      }, 1600);
+    }
+
+    function tttCheckWinner(board) {
+      for (const [a, b, c] of TTT_LINES) {
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+      }
+      return null;
+    }
+
+    function tttNeighbors(i) {
+      const row = Math.floor(i / 3), col = i % 3;
+      const res = [];
+      for (let r = -1; r <= 1; r++) {
+        for (let c = -1; c <= 1; c++) {
+          if (r === 0 && c === 0) continue;
+          const nr = row + r, nc = col + c;
+          if (nr >= 0 && nr < 3 && nc >= 0 && nc < 3) res.push(nr * 3 + nc);
+        }
+      }
+      return res;
+    }
+
+    // Бот: 1) выигрывает, если может; 2) блокирует победу игрока;
+    // 3) иначе ходит рядом со своим прошлым ходом, не повторяя угол дважды подряд
+    // (кроме случая, когда именно угол нужен, чтобы заблокировать игрока — это уже покрыто пунктом 2).
+    function getTttBotMove(board, lastBot) {
+      const empty = board.map((v, i) => v ? null : i).filter(v => v !== null);
+      if (empty.length === 0) return null;
+
+      for (const i of empty) {
+        const test = board.slice(); test[i] = 'O';
+        if (tttCheckWinner(test) === 'O') return i;
+      }
+      for (const i of empty) {
+        const test = board.slice(); test[i] = 'X';
+        if (tttCheckWinner(test) === 'X') return i;
+      }
+
+      const corners = [0, 2, 6, 8];
+      let candidates = [];
+      if (lastBot !== null && lastBot !== undefined) {
+        candidates = tttNeighbors(lastBot).filter(i => empty.includes(i));
+        if (corners.includes(lastBot)) {
+          candidates = candidates.filter(i => !corners.includes(i));
+        }
+      }
+      if (candidates.length === 0) {
+        let pool = empty;
+        if (lastBot !== null && lastBot !== undefined && corners.includes(lastBot)) {
+          const filtered = pool.filter(i => !corners.includes(i));
+          if (filtered.length > 0) pool = filtered;
+        }
+        candidates = pool;
+      }
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    // --- Шар предсказаний ---
+    function createBallWidget() {
+      const el = document.createElement('div');
+      el.className = 'mini-icon-widget';
+      el.id = 'miniGame-ball';
+      el.innerHTML = `<span class="mini-icon-emoji">🔮</span>`;
+      miniGamesDock.appendChild(el);
+      attachHoldToClose(el, 'ball');
+      el.addEventListener('click', () => {
+        playSfx('sfxBallShake', 380);
+        showFortune('🔮', randomFromArray(ballFortunes));
+      });
+    }
+
+    // --- Колесо фортуны ---
+    function createWheelWidget() {
+      const el = document.createElement('div');
+      el.className = 'mini-icon-widget';
+      el.id = 'miniGame-wheel';
+      el.innerHTML = `<span class="mini-icon-emoji">🎡</span>`;
+      miniGamesDock.appendChild(el);
+      attachHoldToClose(el, 'wheel');
+      el.addEventListener('click', () => {
+        if (el.classList.contains('spinning')) return;
+        el.classList.add('spinning');
+        playSfx('sfxWheelSpin', 500);
+        setTimeout(() => {
+          el.classList.remove('spinning');
+          showFortune('🎡', randomFromArray(wheelTasks));
+        }, 9000);
+      });
+    }
+
+    // --- Общий баннер результата для шара и колеса ---
+    let fortuneHideTimeout = null;
+    function showFortune(icon, text) {
+      fortuneBannerIcon.textContent = icon;
+      fortuneBannerText.textContent = text;
+      fortuneBanner.classList.add('show');
+      playSfx('sfxFortuneReveal', 620);
+      clearTimeout(fortuneHideTimeout);
+      fortuneHideTimeout = setTimeout(() => {
+        fortuneBanner.classList.remove('show');
+      }, 4200);
+    }
+
+    // ---------- Выдвижная панель личных заметок ----------
+    const notesTab = document.getElementById('notesTab');
+    const notesDrawer = document.getElementById('notesDrawer');
+    const notesOverlay = document.getElementById('notesOverlay');
+    const notesClose = document.getElementById('notesClose');
+    const notesChipsEl = document.getElementById('notesChips');
+    const notesTextareaEl = document.getElementById('personalNotes');
+
+    function getActiveNotesValue() {
+      if (activeNotesTarget === 'self') return state.personalNotes;
+      const p = findParticipantById(activeNotesTarget);
+      return p ? (p.notes || '') : '';
+    }
+    function setActiveNotesValue(val) {
+      if (activeNotesTarget === 'self') {
+        state.personalNotes = val;
+      } else {
+        const p = findParticipantById(activeNotesTarget);
+        if (p) p.notes = val;
+      }
+    }
+    function switchNotesTarget(target) {
+      activeNotesTarget = target;
+      renderNotesChips();
+      notesTextareaEl.value = getActiveNotesValue();
+      const p = target === 'self' ? null : findParticipantById(target);
+      notesTextareaEl.placeholder = target === 'self'
+        ? 'Записывай сюда свои мысли, наблюдения и стратегии...'
+        : `Твои мысли о ${p ? p.name : 'игроке'}...`;
+      document.getElementById('saveIndicator').textContent = '';
+    }
+    function renderNotesChips() {
+      notesChipsEl.innerHTML = '';
+      const selfChip = document.createElement('button');
+      selfChip.className = 'notes-chip' + (activeNotesTarget === 'self' ? ' active' : '');
+      selfChip.textContent = '🙋 Я';
+      selfChip.addEventListener('click', () => switchNotesTarget('self'));
+      notesChipsEl.appendChild(selfChip);
+
+      state.participants.forEach(p => {
+        const chip = document.createElement('button');
+        chip.className = 'notes-chip' + (activeNotesTarget === p.id ? ' active' : '');
+        chip.textContent = p.name;
+        chip.addEventListener('click', () => switchNotesTarget(p.id));
+        notesChipsEl.appendChild(chip);
+      });
+    }
+
+    function openNotes() {
+      notesDrawer.classList.add('open');
+      notesOverlay.classList.add('open');
+      notesTab.classList.add('open');
+      renderNotesChips();
+      notesTextareaEl.value = getActiveNotesValue();
+      playSfx('sfxDrawerOpen', 440);
+    }
+    function closeNotes() {
+      notesDrawer.classList.remove('open');
+      notesOverlay.classList.remove('open');
+      notesTab.classList.remove('open');
+      playSfx('sfxDrawerClose', 260);
+    }
+    notesTab.addEventListener('click', () => {
+      if (notesDrawer.classList.contains('open')) closeNotes(); else openNotes();
+    });
+    notesOverlay.addEventListener('click', closeNotes);
+    notesClose.addEventListener('click', closeNotes);
+
+    // Автосохранение при вводе текста
+    notesTextareaEl.addEventListener('input', (e) => {
+      setActiveNotesValue(e.target.value);
+      if (activeNotesTarget === 'self') {
+        clearTimeout(window.saveTimeout);
+        window.saveTimeout = setTimeout(() => {
+          saveNotesToLocalStorage();
+        }, 1000);
+      }
+    });
+
+    document.getElementById('saveNotesBtn').addEventListener('click', () => {
+      setActiveNotesValue(notesTextareaEl.value);
+      playSfx('sfxNotesSave', 560);
+      if (activeNotesTarget === 'self') {
+        saveNotesToLocalStorage();
+      } else {
+        const indicator = document.getElementById('saveIndicator');
+        indicator.textContent = '✓ Заметка сохранена';
+        setTimeout(() => { indicator.textContent = ''; }, 2000);
+      }
+    });
+
+    document.getElementById('clearNotesBtn').addEventListener('click', () => {
+      if (confirm('Очистить эту заметку?')) {
+        setActiveNotesValue('');
+        notesTextareaEl.value = '';
+        playSfx('sfxClick', 260);
+        if (activeNotesTarget === 'self') saveNotesToLocalStorage();
+      }
+    });
+
+    document.getElementById('resetGameBtn').addEventListener('click', () => {
+      if (confirm('Сбросить игру и вернуться на стартовый экран?')) {
+        if (timerInterval) clearInterval(timerInterval);
+        if (abilityTimer) clearTimeout(abilityTimer);
+        playSfx('sfxGameReset', 200);
+        showScreen(startScreen);
+      }
+    });
+
+    // начальный экран по умолчанию
+    showScreen(startScreen);
+  })();
+</script>
+</body>
+</html>
