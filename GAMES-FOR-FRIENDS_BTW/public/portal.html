@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Портал</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg: #0e1013;
+    --card: #171b21;
+    --card-hover: #1c212a;
+    --border: #262b34;
+    --border-hover: #4fd8c4;
+    --text: #eae8e3;
+    --text-dim: #888e99;
+    --text-faint: #565c68;
+    --accent: #4fd8c4;
+    --danger: #e5484d;
+    --radius: 16px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(79,216,196,0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 0%, transparent 75%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap{
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 88px 32px 120px;
+  }
+
+  header{
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .eyebrow{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: default;
+    user-select: none;
+  }
+
+  .eyebrow::before, .eyebrow::after{
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent));
+  }
+  .eyebrow::after{ background: linear-gradient(90deg, var(--accent), transparent); }
+
+  h1{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 58px);
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+  }
+
+  header p{
+    color: var(--text-dim);
+    font-size: 16px;
+    max-width: 440px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .max-btn{
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 50;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 9px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: color .2s ease, border-color .2s ease, transform .2s ease;
+  }
+
+  .max-btn:hover{
+    color: var(--accent);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+
+  .max-btn:active{ transform: translateY(0); }
+
+  @media (max-width: 560px){
+    .max-btn{ top: 14px; right: 14px; font-size: 11px; padding: 8px 12px; }
+  }
+
+  .overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(9,10,12,0.88);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+    padding: 20px;
+  }
+
+  .overlay.show{ opacity: 1; pointer-events: auto; }
+
+  .overlay-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 34px;
+    width: min(360px, 100%);
+    text-align: center;
+  }
+
+  .max-spinner{
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin .8s linear infinite;
+  }
+
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .overlay-card.done .max-spinner{ display: none; }
+  .overlay-card.done .max-status{ font-size: 16px; }
+
+  .max-status{
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    line-height: 1.4;
+  }
+
+  .max-progress{
+    height: 6px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .max-progress-fill{
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width .35s ease;
+  }
+
+  .captcha-title{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+
+  .captcha-subtitle{
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 22px;
+    line-height: 1.5;
+  }
+
+  .captcha-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .captcha-cell{
+    aspect-ratio: 1;
+    background: #12151a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+
+  .captcha-cell:hover{
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+  }
+
+  .captcha-cell.wrong{
+    animation: captcha-shake .35s ease;
+    border-color: var(--danger);
+    background: rgba(229,72,77,0.12);
+  }
+
+  .captcha-cell.correct{
+    border-color: var(--accent);
+    background: rgba(79,216,196,0.15);
+  }
+
+  @keyframes captcha-shake{
+    0%, 100%{ transform: translateX(0); }
+    25%{ transform: translateX(-6px); }
+    75%{ transform: translateX(6px); }
+  }
+
+  .captcha-hint{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .controls{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 34px;
+  }
+
+  .tabs{
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .tab{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--text-dim);
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color .2s ease, background .2s ease;
+  }
+
+  .tab:hover{ color: var(--text); }
+
+  .tab:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .tab.active{
+    color: #0e1013;
+    background: var(--accent);
+  }
+
+  .tab .count{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    opacity: .7;
+  }
+
+  .search{
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 320px;
+  }
+
+  .search-icon{
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  .search input{
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 14px 11px 38px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s ease, background .2s ease;
+  }
+
+  .search input::placeholder{ color: var(--text-faint); }
+
+  .search input:focus{
+    border-color: var(--accent);
+    background: var(--card-hover);
+  }
+
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(252px, 1fr));
+    gap: 22px;
+  }
+
+  .card{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .28s ease, border-color .28s ease, background .28s ease, box-shadow .28s ease;
+  }
+
+  .card:hover{
+    transform: translateY(-5px);
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    box-shadow: 0 20px 40px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(79,216,196,0.15), 0 0 30px -8px rgba(79,216,196,0.25);
+  }
+
+  .card:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .card-media{
+    position: relative;
+    height: 138px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(79,216,196,0.16), transparent 60%),
+      #12151a;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-media .emoji{
+    font-size: 44px;
+    filter: grayscale(0.15);
+    transition: transform .35s ease;
+  }
+
+  .card:hover .card-media .emoji{
+    transform: scale(1.12) rotate(-4deg);
+  }
+
+  .card-body{
+    padding: 18px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .card-title{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+
+  .card-desc{
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-dim);
+    flex: 1;
+  }
+
+  .card-path{
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color .28s ease, gap .28s ease;
+  }
+
+  .card:hover .card-path{
+    color: var(--accent);
+    gap: 9px;
+  }
+
+  .empty{
+    display: none;
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 70px 20px;
+    color: var(--text-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+
+  footer{
+    text-align: center;
+    margin-top: 90px;
+    color: var(--text-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 560px){
+    .controls{ flex-direction: column; align-items: stretch; }
+    .search{ max-width: none; }
+  }
+
+  .dog-cameo{
+    position: fixed;
+    left: -160px;
+    z-index: 999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: dog-run .55s cubic-bezier(.3,0,.35,1) forwards;
+  }
+
+  .dog-emoji{
+    font-size: 92px;
+    transform: scaleX(-1);
+    filter: drop-shadow(0 14px 16px rgba(0,0,0,.5));
+  }
+
+  .dog-bark{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    background: var(--accent);
+    color: #0e1013;
+    padding: 3px 9px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+  }
+
+  @keyframes dog-run{
+    0%   { left: -160px; opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { left: 100vw; opacity: 0; }
+  }
+
+  /* ---------------- скрытые механики ---------------- */
+
+  .confetti-piece{
+    position: fixed;
+    top: -20px;
+    width: 8px;
+    height: 14px;
+    z-index: 1200;
+    pointer-events: none;
+    opacity: .95;
+    animation-name: confetti-fall;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes confetti-fall{
+    0%{ transform: translateY(0) rotate(0deg); opacity: 1; }
+    100%{ transform: translateY(110vh) rotate(540deg); opacity: 0; }
+  }
+
+  .secret-card{
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    z-index: 1100;
+    width: 240px;
+    background-color: var(--card);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background-image: linear-gradient(var(--card), var(--card)), linear-gradient(90deg, #4fd8c4, #c77dff, #ffd166, #4fd8c4);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-size: 100% 100%, 300% 100%;
+    animation: secret-glow 3s linear infinite, secret-pop .3s ease;
+    box-shadow: 0 20px 40px -18px rgba(0,0,0,.7);
+  }
+
+  @keyframes secret-glow{
+    to{ background-position: 0 0, 300% 0; }
+  }
+
+  @keyframes secret-pop{
+    from{ transform: translateX(-50%) scale(.85); opacity: 0; }
+    to{ transform: translateX(-50%) scale(1); opacity: 1; }
+  }
+
+  .secret-card .s-emoji{ font-size: 32px; margin-bottom: 8px; }
+  .secret-card .s-title{ font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .secret-card .s-desc{ font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-dim); }
+
+  .toast{
+    position: fixed;
+    bottom: 26px;
+    left: 26px;
+    z-index: 1300;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: 0 12px 30px -14px rgba(0,0,0,.6);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .3s ease, transform .3s ease;
+    max-width: 260px;
+    pointer-events: none;
+  }
+
+  .toast.show{ opacity: 1; transform: translateY(0); }
+
+  .ctx-joke{
+    position: fixed;
+    z-index: 1400;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s ease;
+    transform: translate(6px, 6px);
+  }
+
+  .ctx-joke.show{ opacity: 1; }
+
+  footer{ cursor: pointer; user-select: none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; scroll-behavior: auto !important; }
+    .dog-cameo, .confetti-piece{ display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <button class="max-btn" id="maxBtn">🛂 Войти через MAX</button>
+
+  <div class="overlay" id="maxOverlay">
+    <div class="overlay-card" id="maxCard">
+      <div class="max-spinner"></div>
+      <div class="max-status" id="maxStatus">Устанавливаем защищённое соединение...</div>
+      <div class="max-progress"><div class="max-progress-fill" id="maxProgressFill"></div></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="captchaOverlay">
+    <div class="overlay-card">
+      <div class="captcha-title">Подтвердите, что вы человек</div>
+      <div class="captcha-subtitle">Выберите все клетки со смыслом жизни</div>
+      <div class="captcha-grid" id="captchaGrid"></div>
+      <div class="captcha-hint" id="captchaHint">Осталось: 1</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <div class="eyebrow" id="eyebrow">портал</div>
+      <h1>Игры</h1>
+      <p>Выбери карточку, чтобы поиграть, или найди игру по названию</p>
+    </header>
+
+    <div class="controls">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-category="online" role="tab" aria-selected="true">Онлайн <span class="count" id="count-online"></span></button>
+        <button class="tab" data-category="offline" role="tab" aria-selected="false">Оффлайн <span class="count" id="count-offline"></span></button>
+      </div>
+      <div class="search">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search" placeholder="Поиск по названию или описанию…">
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <footer id="footer">portal · v1</footer>
+  </div>
+
+<script>
+
+  const games = [
+    { title: "Бункер", description: "Докажи, что именно ты достоин остаться в бункере.", emoji: "🚪", link: "games/bunker/bunker.html", category: "online" },
+    { title: "Мафия", description: "Вычисли убийцу или скрывай свои преступления.", emoji: "🔪", link: "games/mafia/mafia.html", category: "online" },
+    { title: "Дурак", description: "Лишись всех карт или останься дураком.", emoji: "♠", link: "games/durak/durak.html", category: "online" },
+    { title: "Змейка", description: "Классика на выживание. Собирай очки, не врезайся в хвост.", emoji: "🐍", link: "offline-games/snake/index.html", category: "offline" },
+    { title: "2048", description: "Складывай числа, добирайся до 2048 и дальше.", emoji: "🔢", link: "offline-games/2048/index.html", category: "offline" },
+    { title: "Тетрис", description: "Падающие блоки, полные линии, растущая скорость.", emoji: "🧱", link: "offline-games/tetris/index.html", category: "offline" }
+  ];
+
+  let audioCtx = null;
+  function getAudioCtx(){
+    if (!audioCtx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      audioCtx = new Ctx();
+    }
+    return audioCtx;
+  }
+
+  ['pointerdown', 'keydown'].forEach(evt => {
+    document.addEventListener(evt, () => {
+      const ctx = getAudioCtx();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+    }, { once: true });
+  });
+
+  function playSound(name, volume = 0.45){
+    let fellBack = false;
+    const fallback = () => { if (fellBack) return; fellBack = true; synthSound(name); };
+    try {
+      const audio = new Audio(`sounds/${name}.mp3`);
+      audio.volume = volume;
+      audio.addEventListener('error', fallback);
+      const p = audio.play();
+      if (p !== undefined) p.catch(fallback);
+    } catch (e) { fallback(); }
+  }
+
+  function synthSound(name){
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (name === 'click') synthClick(ctx);
+    if (name === 'success') synthSuccess(ctx);
+    if (name === 'error') synthError(ctx);
+    if (name === 'bark') synthBark(ctx);
+  }
+
+  function synthClick(ctx){
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 720;
+    gain.gain.setValueAtTime(0.16, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.09);
+  }
+
+  function synthSuccess(ctx){
+    const now = ctx.currentTime;
+    [523.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = now + i * 0.12;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.26);
+    });
+  }
+
+  function synthError(ctx){
+    const now = ctx.currentTime;
+    [220, 160].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.value = freq;
+      const t = now + i * 0.1;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.23);
+    });
+  }
+
+  function synthBark(ctx){
+    const now = ctx.currentTime;
+    const bufferSize = Math.floor(ctx.sampleRate * 0.15);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++){
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 900;
+    noiseFilter.Q.value = 0.7;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.35, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+    noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+    noise.start(now);
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(110, now + 0.18);
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0.25, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+    osc.connect(oscGain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.22);
+  }
+
+  function showToast(text, duration = 3000){
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = text;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 400);
+    }, duration);
+  }
+
+  const grid = document.getElementById('grid');
+  const searchInput = document.getElementById('search');
+  const tabs = document.querySelectorAll('.tab');
+
+  let activeCategory = 'online';
+
+  function renderCard(game){
+    const a = document.createElement('a');
+    a.className = 'card';
+    a.href = game.link;
+    a.innerHTML = `
+      <div class="card-media"><span class="emoji">${game.emoji || "🎮"}</span></div>
+      <div class="card-body">
+        <div class="card-title">${game.title}</div>
+        <div class="card-desc">${game.description || ""}</div>
+        <div class="card-path">→ ${game.link}</div>
+      </div>
+    `;
+    a.addEventListener('click', () => playSound('click', 0.3));
+    return a;
+  }
+
+  function updateCounts(){
+    document.getElementById('count-online').textContent = games.filter(g => g.category === 'online').length;
+    document.getElementById('count-offline').textContent = games.filter(g => g.category === 'offline').length;
+  }
+
+  function render(){
+    const query = searchInput.value.trim().toLowerCase();
+
+    if (query === '42' || query.includes('смысл жизни')){
+      grid.innerHTML = '';
+      const special = document.createElement('div');
+      special.className = 'empty';
+      special.style.display = 'block';
+      special.innerHTML = '42<br><span style="font-size:11px;opacity:.7">Теперь и ты знаешь</span>';
+      grid.appendChild(special);
+      return;
+    }
+
+    const filtered = games.filter(g => {
+      if (g.category !== activeCategory) return false;
+      if (!query) return true;
+      return g.title.toLowerCase().includes(query) || (g.description || "").toLowerCase().includes(query);
+    });
+
+    grid.innerHTML = '';
+
+    if (filtered.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.style.display = 'block';
+      empty.textContent = 'Ничего не найдено';
+      grid.appendChild(empty);
+      return;
+    }
+
+    filtered.forEach(g => grid.appendChild(renderCard(g)));
+  }
+
+  const captchaOverlay = document.getElementById('captchaOverlay');
+  const captchaGrid = document.getElementById('captchaGrid');
+  const captchaHint = document.getElementById('captchaHint');
+  const funEmojis = ['🌵','🍕','🦆','🎈','🪐','🧦','☕','🌈','⚡','🪴','🎯','🛸','🍩','🐢','🎨','🥨','🦩','🧃'];
+  let currentCorrectEmoji = null;
+  let tabClickTimestamps = [];
+
+  function shuffle(arr){
+    for (let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function buildCaptcha(){
+    const gameEmojis = [...new Set(games.map(g => g.emoji))];
+    currentCorrectEmoji = gameEmojis[Math.floor(Math.random() * gameEmojis.length)];
+    const decor = shuffle([...funEmojis]).slice(0, 8);
+    const cells = shuffle([currentCorrectEmoji, ...decor]);
+    captchaGrid.innerHTML = '';
+    captchaHint.textContent = 'Осталось: 1';
+    cells.forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.className = 'captcha-cell';
+      btn.type = 'button';
+      btn.textContent = emoji;
+      btn.addEventListener('click', () => handleCaptchaClick(btn, emoji));
+      captchaGrid.appendChild(btn);
+    });
+  }
+
+  function handleCaptchaClick(btn, emoji){
+    if (emoji === currentCorrectEmoji){
+      btn.classList.add('correct');
+      playSound('success');
+      captchaHint.textContent = 'Верно! Вы человек (наверное).';
+      captchaGrid.querySelectorAll('.captcha-cell').forEach(c => c.disabled = true);
+      setTimeout(() => captchaOverlay.classList.remove('show'), 900);
+    } else {
+      playSound('error');
+      btn.classList.add('wrong');
+      setTimeout(() => buildCaptcha(), 420);
+    }
+  }
+
+  function showCaptcha(){
+    buildCaptcha();
+    captchaOverlay.classList.add('show');
+  }
+
+  captchaOverlay.addEventListener('click', (e) => {
+    if (e.target === captchaOverlay) captchaOverlay.classList.remove('show');
+  });
+
+  function trackTabSwitch(){
+    const now = Date.now();
+    tabClickTimestamps.push(now);
+    tabClickTimestamps = tabClickTimestamps.filter(t => now - t < 3000);
+    if (tabClickTimestamps.length >= 4){
+      tabClickTimestamps = [];
+      showCaptcha();
+    }
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      playSound('click');
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+      activeCategory = tab.dataset.category;
+      render();
+      trackTabSwitch();
+    });
+  });
+
+  searchInput.addEventListener('input', render);
+  updateCounts();
+  render();
+
+  const maxBtn = document.getElementById('maxBtn');
+  const maxOverlay = document.getElementById('maxOverlay');
+  const maxCard = document.getElementById('maxCard');
+  const maxStatus = document.getElementById('maxStatus');
+  const maxFill = document.getElementById('maxProgressFill');
+
+  const maxSteps = [
+    "Устанавливаем защищённое соединение...",
+    "Проверяем, не робот ли ты (это не точно)...",
+    "Согласовываем с 15 инстанциями...",
+    "Уточняем у соседа Валеры...",
+    "Синхронизируем с Госуслугами...",
+    "Почти готово, чай остывает..."
+  ];
+
+  function runMaxLogin(){
+    playSound('click');
+    maxOverlay.classList.add('show');
+    maxCard.classList.remove('done');
+    maxFill.style.width = '0%';
+    let i = 0;
+    maxStatus.textContent = maxSteps[0];
+    const interval = setInterval(() => {
+      i++;
+      playSound('click', 0.25);
+      maxFill.style.width = Math.min(100, (i / maxSteps.length) * 100) + '%';
+      if (i < maxSteps.length){
+        maxStatus.textContent = maxSteps[i];
+      } else {
+        clearInterval(interval);
+        maxCard.classList.add('done');
+        maxStatus.textContent = 'Готово! Добро пожаловать, гражданин 🫡';
+        playSound('success');
+        setTimeout(() => maxOverlay.classList.remove('show'), 1800);
+      }
+    }, 450);
+  }
+
+  maxBtn.addEventListener('click', runMaxLogin);
+  maxOverlay.addEventListener('click', (e) => {
+    if (e.target === maxOverlay) maxOverlay.classList.remove('show');
+  });
+
+  function runDog(){
+    playSound('bark', 0.5);
+    const dog = document.createElement('div');
+    dog.className = 'dog-cameo';
+    dog.style.bottom = (8 + Math.random() * 28) + '%';
+    dog.innerHTML = '<div class="dog-bark">ГАВ!</div><div class="dog-emoji">🐕</div>';
+    document.body.appendChild(dog);
+    dog.addEventListener('animationend', () => dog.remove());
+  }
+
+  setTimeout(runDog, 8000 + Math.random() * 22000);
+
+  const eyebrow = document.getElementById('eyebrow');
+  let eyebrowClicks = 0;
+  let eyebrowTimer = null;
+  eyebrow.addEventListener('click', () => {
+    eyebrowClicks++;
+    clearTimeout(eyebrowTimer);
+    eyebrowTimer = setTimeout(() => { eyebrowClicks = 0; }, 1200);
+    if (eyebrowClicks >= 5){
+      eyebrowClicks = 0;
+      runDog();
+    }
+  });
+
+  function spawnConfetti(){
+    const colors = ['#4fd8c4', '#eae8e3', '#e5484d', '#ffd166', '#8ecae6', '#c77dff'];
+    for (let i = 0; i < 70; i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      const duration = 2 + Math.random() * 1.8;
+      piece.style.animationDuration = duration + 's';
+      piece.style.animationDelay = (Math.random() * 0.4) + 's';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), (duration + 0.5) * 1000);
+    }
+  }
+
+  function showSecretCard(){
+    const card = document.createElement('div');
+    card.className = 'secret-card';
+    card.innerHTML = `
+      <div class="s-emoji">❓</div>
+      <div class="s-title">??? Загадочная игра</div>
+      <div class="s-desc">Кликни, если не боишься</div>
+    `;
+    card.addEventListener('click', () => {
+      playSound('success');
+      card.remove();
+      showToast('Игра ещё не изобретена. Как и ты, возможно 👀', 3200);
+    });
+    document.body.appendChild(card);
+    setTimeout(() => card.remove(), 10000);
+  }
+
+  const konamiSeq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
+  let konamiPos = 0;
+  document.addEventListener('keydown', (e) => {
+    const key = e.code;
+    if (key === konamiSeq[konamiPos]){
+      konamiPos++;
+      if (konamiPos === konamiSeq.length){
+        konamiPos = 0;
+        spawnConfetti();
+        showSecretCard();
+        playSound('success');
+      }
+    } else {
+      konamiPos = (key === konamiSeq[0]) ? 1 : 0;
+    }
+  });
+
+
+  const originalTitle = document.title;
+  document.addEventListener('visibilitychange', () => {
+    document.title = document.hidden ? 'Не уходи 🥺' : originalTitle;
+  });
+
+
+  const footerEl = document.getElementById('footer');
+  const versions = ['v1','v1.1','v1.2','v1.5','v2 beta','v2.7','v3 (никому не нужна)','v4.20','v9000','v∞'];
+  let versionIndex = 0;
+  footerEl.addEventListener('click', () => {
+    playSound('click', 0.2);
+    versionIndex = Math.min(versionIndex + 1, versions.length - 1);
+    footerEl.textContent = 'portal · ' + versions[versionIndex];
+  });
+
+
+  const idleMessages = ['Аллё? Ты тут? 👋', 'Всё ещё выбираешь игру?', 'Ладно, я подожду...', '...', 'Я тут, если что 🌵'];
+  let idleIndex = 0;
+  let idleTimer = null;
+  function resetIdleTimer(){
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      showToast(idleMessages[idleIndex % idleMessages.length]);
+      idleIndex++;
+      resetIdleTimer();
+    }, 70000);
+  }
+  ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, resetIdleTimer, { passive: true });
+  });
+  resetIdleTimer();
+
+
+  const ctxMessages = ['Тут ловить нечего 🕵️', 'Правой кнопкой такое не работает 😏', 'Секретов нет. Или есть? 👀', 'Ctrl+C? А если найду? 😄'];
+  document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    const el = document.createElement('div');
+    el.className = 'ctx-joke';
+    el.textContent = ctxMessages[Math.floor(Math.random() * ctxMessages.length)];
+    el.style.left = e.clientX + 'px';
+    el.style.top = e.clientY + 'px';
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 200);
+    }, 1600);
+  });
+
+  console.log('%cПривет, любопытный разработчик 👀', 'font-size:16px;font-weight:bold;color:#4fd8c4;');
+  console.log('%cЕсли ты читаешь это в консоли — держи виртуальное печенье 🍪', 'color:#888e99;font-size:12px;');
+
+</script>
+<script type="module" src="firebase-init.js"></script>
+</body>
+</html>
